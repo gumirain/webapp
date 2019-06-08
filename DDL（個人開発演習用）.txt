@@ -1,0 +1,76 @@
+-- mysqlにrootでログインした後、以下のスクリプトを流してください。
+
+drop database if exists KNOWLEDGE;
+create database if not exists KNOWLEDGE;
+
+drop user if exists 'app-user'@'localhost';
+create user if not exists 'app-user'@'localhost' identified by 'Kn0w1eDgE';
+alter user 'app-user'@'localhost' identified with mysql_native_password by 'Kn0w1eDgE';
+grant select, insert, update, delete on KNOWLEDGE.* to 'app-user'@'localhost';
+
+connect KNOWLEDGE;
+
+drop table if exists KNOWLEDGE;
+drop table if exists CHANNEL;
+drop table if exists USER;
+
+create table if not exists USER (
+   USER_ID int(11) auto_increment primary key
+  ,EMAIL varchar(255) unique not null
+  ,PASSWORD blob not null
+  ,FIRST_NAME varchar(30)
+  ,LAST_NAME varchar(30) not null
+  ,ADMINISTRATOR_FLG tinyint(1) default 0 not null
+  ,UPDATE_USER_ID int(11) not null
+  ,UPDATE_AT timestamp default current_timestamp not null
+  ,UPDATE_NUMBER int(11) not null
+  ,DEL_FLG tinyint(1) default 0 not null
+  ,foreign key(UPDATE_USER_ID) references USER(USER_ID)
+);
+alter table USER modify FIRST_NAME varchar(30) character set utf8;
+alter table USER modify LAST_NAME varchar(30) character set utf8;
+
+create table if not exists CHANNEL (
+   CHANNEL_ID int(11) auto_increment primary key
+  ,CHANNEL_NAME varchar(30) unique not null
+  ,OVERVIEW varchar(200) not null
+  ,USER_ID int(11) not null
+  ,UPDATE_AT timestamp default current_timestamp not null
+  ,UPDATE_NUMBER int(11) not null
+  ,foreign key(USER_ID) references USER(USER_ID)
+);
+alter table CHANNEL modify CHANNEL_NAME varchar(30) character set utf8;
+alter table CHANNEL modify OVERVIEW varchar(200) character set utf8;
+
+create table if not exists KNOWLEDGE (
+   KNOWLEDGE_ID int(11) auto_increment primary key
+  ,KNOWLEDGE text not null
+  ,CHANNEL_ID int(11) not null
+  ,USER_ID int(11) not null
+  ,UPDATE_AT timestamp default current_timestamp not null
+  ,UPDATE_NUMBER int(11) not null
+  ,foreign key(USER_ID) references USER(USER_ID)
+  ,foreign key(CHANNEL_ID) references CHANNEL(CHANNEL_ID)
+);
+alter table KNOWLEDGE modify KNOWLEDGE text character set utf8;
+
+insert into USER(EMAIL, PASSWORD, FIRST_NAME, LAST_NAME, ADMINISTRATOR_FLG, UPDATE_USER_ID, UPDATE_NUMBER, DEL_FLG) values ('nobunaga_oda@trainee.kronos.jp', sha2('nobunaga_oda', 256), '信長', '織田', '0', 1, 0, '0');
+insert into USER(EMAIL, PASSWORD, FIRST_NAME, LAST_NAME, ADMINISTRATOR_FLG, UPDATE_USER_ID, UPDATE_NUMBER, DEL_FLG) values ('hideyoshi_toyotomi@trainee.kronos.jp', sha2('hideyoshi_toyotomi', 256), '秀吉', '豊臣', '1', 1, 0, '0');
+insert into USER(EMAIL, PASSWORD, FIRST_NAME, LAST_NAME, ADMINISTRATOR_FLG, UPDATE_USER_ID, UPDATE_NUMBER, DEL_FLG) values ('ieyasu_tokugawa@trainee.kronos.jp', sha2('ieyasu_tokugawa', 256), '家康', '徳川', '1', 3, 0, '1');
+insert into USER(EMAIL, PASSWORD, FIRST_NAME, LAST_NAME, ADMINISTRATOR_FLG, UPDATE_USER_ID, UPDATE_NUMBER, DEL_FLG) values ('hidemitsu_akechi@trainee.kronos.jp', sha2('hidemitsu_akechi', 256), '秀光', '明智', '1', 3, 0, '0');
+insert into USER(EMAIL, PASSWORD, FIRST_NAME, LAST_NAME, ADMINISTRATOR_FLG, UPDATE_USER_ID, UPDATE_NUMBER, DEL_FLG) values ('mitsunari_ishida@trainee.kronos.jp', sha2('mitsunari_ishida', 256), '光成', '石田', '0', 3, 0, '0');
+
+insert into CHANNEL(CHANNEL_NAME, OVERVIEW, USER_ID, UPDATE_NUMBER) values ('Java基礎', 'Pure Java関連', 1, 0);
+insert into CHANNEL(CHANNEL_NAME, OVERVIEW, USER_ID, UPDATE_NUMBER) values ('SpringFramework', 'SpringFrameworkについてのナレッジを共有します。', 2, 0);
+insert into CHANNEL(CHANNEL_NAME, OVERVIEW, USER_ID, UPDATE_NUMBER) values ('Jenkins', 'Jenkinsについてのナレッジを共有します。', 3, 0);
+insert into CHANNEL(CHANNEL_NAME, OVERVIEW, USER_ID, UPDATE_NUMBER) values ('Git', '構成管理ツールのデファクトスタンダードになりつつあるGitを学ぼう', 1, 0);
+
+insert into KNOWLEDGE(KNOWLEDGE, CHANNEL_ID, USER_ID, UPDATE_NUMBER) values ('Javaは言語として高性能で、OSに依存せずに動作すること、開発効率と保守性が高いこと、ライブラリが充実していることなどのメリットがあります。Javaは活用範囲が広く、昔から根強い人気があるプログラミング言語です。', 1, 1, 0);
+insert into KNOWLEDGE(KNOWLEDGE, CHANNEL_ID, USER_ID, UPDATE_NUMBER) values ('Java は 「プラットフォームに依存しないプログラミング言語である」など多くの有益な面を持っており、今日のWebアプリケーション開発において重要なポジションを占めています。', 1, 3, 0);
+insert into KNOWLEDGE(KNOWLEDGE, CHANNEL_ID, USER_ID, UPDATE_NUMBER) values ('Javaを習得できれば、Webサービスだけではなく組込み系やデスクトップアプリ等、大小様々なシステムで活用できます。OSに依存せず、ライブラリも豊富なので開発の幅が広く、有名なサービスではTwitterやEvenoteでもJavaが使用されています。また、最近はJavaを使った機械学習も行われています。', 1, 1, 0);
+insert into KNOWLEDGE(KNOWLEDGE, CHANNEL_ID, USER_ID, UPDATE_NUMBER) values ('Spring Framework（単にSpringとも呼ばれます）は、JavaのWEBフレームワークで、WEBアプリを作ることができます。従来のWebアプリケーションにおける様々な問題を解決しており、非常に有力なフレームワークとして、長い間注目されています。', 2, 1, 0);
+
+select count(*) from USER;
+select count(*) from KNOWLEDGE;
+select count(*) from CHANNEL;
+

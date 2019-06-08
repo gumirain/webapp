@@ -1,0 +1,11 @@
+  <Resource name="jdbc/knowledge"
+              auth="Container"
+              type="javax.sql.DataSource"
+              driverClassName="com.mysql.cj.jdbc.Driver"
+              url="jdbc:mysql://localhost:3306/knowledge?useSSL=false&amp;serverTimezone=JST"
+              username="root"
+              password="root"
+              maxTotal="30"
+              maxIdle="10"
+              maxWaitMillis="5000"
+              />
